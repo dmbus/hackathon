@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Sparkles } from 'lucide-react';
 import axios from 'axios';
 
-// API Configuration - in production this would typically be /api or a full URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// API Configuration
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.sprache.app';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
