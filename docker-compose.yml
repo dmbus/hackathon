@@ -2,8 +2,16 @@ services:
   backend:
     build: .
     image: ${IMAGE_NAME:-backend}
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     env_file:
       - .env
     restart: always
+    networks:
+      - default
+      - nginx-proxy
+
+networks:
+  nginx-proxy:
+    external: true
+    name: nginx-proxy_default
