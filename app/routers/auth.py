@@ -1,6 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from app.models.user import UserCreate, UserLogin, FirebaseTokenResponse
-from app.services.firebase_auth import sign_up_with_email, sign_in_with_email
+from fastapi import APIRouter, Depends, HTTPException, status, Header, Body
+from app.models.user import UserCreate, UserLogin, FirebaseTokenResponse, EmailRequest
+from app.services.firebase_auth import (
+    sign_up_with_email, 
+    sign_in_with_email, 
+    send_password_reset_email,
+    send_email_verification
+)
 from app.db.mongodb import get_database
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from datetime import datetime
@@ -32,3 +37,23 @@ async def register(user: UserCreate, db: AsyncIOMotorDatabase = Depends(get_data
 @router.post("/login", response_model=FirebaseTokenResponse)
 async def login(user: UserLogin):
     return await sign_in_with_email(user.email, user.password)
+
+@router.post("/password-reset-request")
+async def request_password_reset(request: EmailRequest):
+    await send_password_reset_email(request.email)
+    return {"message": "Password reset email sent"}
+
+@router.post("/verify-email")
+async def verify_user_email(authorization: str = Header(..., description="Bearer <token>")):
+    # Extract token from Bearer header
+    if not authorization.startswith("Bearer "):
+         raise HTTPException(status_code=401, detail="Invalid authorization header")
+    token = authorization.split(" ")[1]
+    
+    await send_email_verification(token)
+    return {"message": "Verification email sent"}
+
+@router.post("/logout")
+async def logout():
+    # Stateless logout - client discards token
+    return {"message": "Logged out successfully"}

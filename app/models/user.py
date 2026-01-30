@@ -16,3 +16,6 @@ class FirebaseTokenResponse(BaseModel):
     refreshToken: str
     expiresIn: str
     localId: str
+
+class EmailRequest(BaseModel):
+    email: EmailStr
