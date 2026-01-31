@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 # --- Pydantic Models for LLM Output ---
 
 class ScriptLineModel(BaseModel):
-    speaker: str = Field(description="The name of the speaker (e.g., 'Gastgeber', 'Gast', 'Person A')")
+    speaker: str = Field(description="The name of the speaker (e.g., 'Person A', 'Person B', 'Sprecher')")
     text: str = Field(description="The spoken text in German")
 
 
@@ -98,24 +98,29 @@ class PodcastGeneratorService:
         parser = PydanticOutputParser(pydantic_object=PodcastScriptModel)
 
         role_instruction = (
-            "ein Monolog von einem einzigen Sprecher"
+            "ein Monolog von einer einzigen Person, die laut denkt oder erzählt"
             if num_speakers == 1
-            else "ein Dialog zwischen zwei Personen (Gastgeber und Gast)"
+            else "ein Dialog zwischen zwei Personen (Person A und Person B)"
         )
 
         template = """
-        Du bist ein Experte für das Sprachenlernen. Erstelle ein Podcast-Skript für einen Deutschlerner auf dem Niveau {cefr_level}.
+        Du bist ein Experte für das Sprachenlernen. Erstelle ein Skript für einen Deutschlerner auf dem Niveau {cefr_level}.
         Das Skript muss zwingend die folgenden Vokabeln enthalten: {words}.
 
-        Der Kontext ist: {context}
+        SETTING/ORT: Die Szene spielt sich an folgendem Ort ab: "{context}"
+        Dies ist der physische Ort, an dem das Gespräch stattfindet. Nutze diesen Kontext, um realistische Situationen und passende Dialoge zu erstellen.
 
-        Das Format soll {role_instruction} sein.
-        Der Inhalt sollte eine realistische, alltägliche Situation im Kontext "{context}" widerspiegeln.
-        Die Sprache muss natürlich klingen, aber dem Niveau {cefr_level} entsprechen.
-
+        FORMAT: {role_instruction}
+        
+        Die Sprache muss natürlich klingen und dem Niveau {cefr_level} entsprechen.
         Das Skript sollte zwischen 1-3 Minuten dauern wenn gesprochen (ca. 150-450 Wörter).
 
-        WICHTIG: Das gesamte Skript muss auf Deutsch sein.
+        SEHR WICHTIG:
+        - Das gesamte Skript muss auf Deutsch sein.
+        - KEINE Podcast-Einleitung oder Begrüßung wie "Willkommen zum Podcast" oder "Hallo liebe Zuhörer".
+        - KEINE Podcast-Verabschiedung wie "Danke fürs Zuhören" oder "Bis zum nächsten Mal".
+        - Der Dialog/Monolog soll direkt in der Szene beginnen und enden, als wäre es ein Ausschnitt aus dem echten Leben.
+        - Die Personen sprechen natürlich miteinander (oder denken laut bei einem Monolog), ohne zu wissen, dass sie aufgenommen werden.
 
         {format_instructions}
         """
