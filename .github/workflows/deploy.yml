@@ -106,11 +106,11 @@ jobs:
                       export FRONTEND_IMAGE_NAME=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest
 
                       # Create/Update .env file
-                      echo "FIREBASE_API=$FIREBASE_API" > .env
-                      echo "MONGO_ADDRESS=$MONGO_ADDRESS" >> .env
-                      echo "MONGO_USER=$MONGO_USER" >> .env
-                      echo "MONGO_PASSWORD=$MONGO_PASSWORD" >> .env
-                      echo "MONGO_CLUSTER=$MONGO_CLUSTER" >> .env
+                      echo "FIREBASE_API='$FIREBASE_API'" > .env
+                      echo "MONGO_ADDRESS='$MONGO_ADDRESS'" >> .env
+                      echo "MONGO_USER='$MONGO_USER'" >> .env
+                      echo "MONGO_PASSWORD='$MONGO_PASSWORD'" >> .env
+                      echo "MONGO_CLUSTER='$MONGO_CLUSTER'" >> .env
 
                       # Pull and Restart
                       docker-compose pull
