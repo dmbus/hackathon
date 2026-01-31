@@ -1,4 +1,4 @@
-# LingoFlash Project Description
+# Sprache.app Project Description
 
 ## 1. Website Functionality & Features
 
@@ -17,7 +17,7 @@
 ### Content Library
 *   **Curated Decks:** Professionally designed vocabulary sets categorized by level (A1-C1) and topic.
 *   **Custom Decks:** Functionality for users to create and manage their own study sets.
-*   **Subscription Management:** "LingoFlash Plus" tier for offline access and unlimited AI practice.
+*   **Subscription Management:** "Sprache.app Plus" tier for offline access and unlimited AI practice.
 
 ## 2. Key Selling Points (USPs)
 *   **"Private Tutor" Experience:** The AI Speaking Coach provides instant, granular feedback that usually requires a human teacher.
@@ -66,7 +66,7 @@
 
 ## 4. Prompt for Promo Website Creation
 
-"Develop a high-converting, visually stunning promotional landing page for **LingoFlash**, an AI-powered language learning application.
+"Develop a high-converting, visually stunning promotional landing page for **Sprache.app**, an AI-powered language learning application.
 
 **Objective:** Drive user sign-ups and app downloads by showcasing the app's premium design and AI capabilities.
 
@@ -85,13 +85,13 @@
     *   User stats (e.g., '10k+ Active Learners', '50k Lessons Completed').
     *   Testimonial cards in the style of the app's UI.
 5.  **Pricing Tier:**
-    *   Simple toggle between 'Free' and 'LingoFlash Plus'.
+    *   Simple toggle between 'Free' and 'Sprache.app Plus'.
     *   Highlight benefits like 'Offline Mode' and 'Unlimited AI'.
 6.  **Footer:**
     *   Links to privacy, terms, and social media.
 
 **Design Guidelines:**
-*   **Strict Adherence to LingoFlash Design System:**
+*   **Strict Adherence to Sprache.app Design System:**
     *   Use `bg-slate-50` for the page background.
     *   Use `text-slate-900` for headings (`font-extrabold tracking-tight`) and `text-slate-600` for body.
     *   Primary Action Color: `indigo-600`.

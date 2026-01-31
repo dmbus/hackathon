@@ -132,8 +132,8 @@ const LearningPage = () => {
             {/* Sidebar Navigation */}
             <aside className="w-72 bg-white border-r border-slate-200 p-6 flex flex-col gap-8 sticky top-0 h-screen hidden lg:flex">
                 <div className="flex items-center gap-2 px-2">
-                    <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-200">L</div>
-                    <span className="text-2xl font-extrabold tracking-tight text-slate-900">LingoFlash</span>
+                    <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-200">S</div>
+                    <span className="text-2xl font-extrabold tracking-tight text-slate-900">Sprache.app</span>
                 </div>
 
                 <nav className="flex-1 space-y-2">
@@ -156,8 +156,8 @@ const LearningPage = () => {
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                     <div className="flex items-center justify-between lg:block">
                         <div className="lg:hidden flex items-center gap-2">
-                            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-black">L</div>
-                            <span className="text-xl font-extrabold text-slate-900">LingoFlash</span>
+                            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-black">S</div>
+                            <span className="text-xl font-extrabold text-slate-900">Sprache.app</span>
                         </div>
                         <div>
                             <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">

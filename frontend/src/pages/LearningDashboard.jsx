@@ -165,7 +165,7 @@ const LearningDashboard = () => {
                     <Card className="p-6 bg-slate-900 text-white relative overflow-hidden">
                         <div className="absolute -right-8 -top-8 w-32 h-32 bg-indigo-600 rounded-full blur-3xl opacity-30"></div>
                         <SectionHeader overline="Membership" title="" />
-                        <h3 className="text-xl font-extrabold mb-2">LingoFlash Plus</h3>
+                        <h3 className="text-xl font-extrabold mb-2">Sprache.app Plus</h3>
                         <p className="text-slate-400 text-sm mb-6 font-medium">Unlimited practice, offline mode, and advanced AI tutor features active.</p>
                         <div className="flex items-center justify-between text-xs font-bold text-indigo-300 mb-2">
                             <span>Next billing date</span>

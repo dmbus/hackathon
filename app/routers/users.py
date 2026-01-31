@@ -176,7 +176,7 @@ async def get_user_notifications(
         welcome_notifications = [
             {
                 "user_id": current_user.id,
-                "title": "Welcome to LingoFlash!",
+                "title": "Welcome to Sprache.app!",
                 "message": "Start your language learning journey today. Check out the dashboard to begin.",
                 "type": "info",
                 "read": False,
