@@ -6,41 +6,21 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 /**
  * Get authentication headers from localStorage.
- * Checks multiple token storage locations for compatibility.
+ * Uses the same approach as other services for consistency.
  */
 const getAuthHeaders = () => {
-    // First, try the direct token storage (used by email/password login)
-    const directToken = localStorage.getItem('token');
-    if (directToken) {
+    // Try the direct token storage (used by email/password login and AuthContext)
+    const token = localStorage.getItem('token');
+    if (token) {
         return {
-            'Authorization': `Bearer ${directToken}`
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         };
     }
     
-    // Then try the Firebase user object structure (used by some auth flows)
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-        try {
-            const user = JSON.parse(userStr);
-            if (user && user.stsTokenManager && user.stsTokenManager.accessToken) {
-                return {
-                    'Authorization': `Bearer ${user.stsTokenManager.accessToken}`
-                };
-            }
-        } catch (e) {
-            console.error("Error parsing user from localStorage:", e);
-        }
-    }
-    
-    return {};
-};
-
-/**
- * Check if user is authenticated
- */
-const isAuthenticated = () => {
-    const headers = getAuthHeaders();
-    return !!headers.Authorization;
+    return {
+        'Content-Type': 'application/json'
+    };
 };
 
 /**
@@ -83,10 +63,6 @@ export const speakingService = {
      * @returns {Promise<{question: {text: string, text_en?: string, theme?: string, level?: string, audioUrl?: string}, targetWords: Array, maxDuration: number}>}
      */
     getPracticeSession: async ({ theme = null, level = null } = {}) => {
-        if (!isAuthenticated()) {
-            throw new Error('Please log in to access speaking practice');
-        }
-        
         try {
             const params = new URLSearchParams();
             if (theme) params.append('theme', theme);
@@ -112,7 +88,6 @@ export const speakingService = {
             return await response.json();
         } catch (error) {
             console.error("Error fetching practice session:", error);
-            // Re-throw with proper message
             if (error instanceof Error) {
                 throw error;
             }
@@ -126,10 +101,6 @@ export const speakingService = {
      * @returns {Promise<string[]>}
      */
     getThemes: async (level = null) => {
-        if (!isAuthenticated()) {
-            throw new Error('Please log in to access speaking themes');
-        }
-        
         try {
             let url = `${API_URL}/speaking/questions/themes`;
             if (level) {
@@ -163,10 +134,6 @@ export const speakingService = {
      * @returns {Promise<string[]>}
      */
     getLevels: async () => {
-        if (!isAuthenticated()) {
-            throw new Error('Please log in to access speaking levels');
-        }
-        
         try {
             const response = await fetch(`${API_URL}/speaking/questions/levels`, {
                 headers: getAuthHeaders()
@@ -198,10 +165,6 @@ export const speakingService = {
      * @returns {Promise<{id: number, level: string, theme: string, question: string, question_en: string, target_words: string[]}>}
      */
     getRandomQuestion: async ({ theme = null, level = null } = {}) => {
-        if (!isAuthenticated()) {
-            throw new Error('Please log in to access speaking questions');
-        }
-        
         try {
             const params = new URLSearchParams();
             if (theme) params.append('theme', theme);
@@ -242,10 +205,6 @@ export const speakingService = {
      * @returns {Promise<Object>} - Analysis result including score, feedback, etc.
      */
     submitRecording: async (audioBlob, questionText, targetWords) => {
-        if (!isAuthenticated()) {
-            throw new Error('Please log in to submit recordings');
-        }
-        
         try {
             const formData = new FormData();
             
@@ -258,9 +217,13 @@ export const speakingService = {
             formData.append('questionText', questionText);
             formData.append('targetWords', JSON.stringify(targetWords));
             
+            // For FormData, only include Authorization header, not Content-Type
+            const token = localStorage.getItem('token');
+            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+            
             const response = await fetch(`${API_URL}/speaking/analyze`, {
                 method: 'POST',
-                headers: getAuthHeaders(), // Don't include Content-Type for FormData
+                headers: headers,
                 body: formData
             });
             
@@ -289,10 +252,6 @@ export const speakingService = {
      * @returns {Promise<{sessions: Array, total: number}>}
      */
     getHistory: async (skip = 0, limit = 20) => {
-        if (!isAuthenticated()) {
-            throw new Error('Please log in to view speaking history');
-        }
-        
         try {
             const response = await fetch(
                 `${API_URL}/speaking/history?skip=${skip}&limit=${limit}`,
@@ -323,10 +282,6 @@ export const speakingService = {
      * @returns {Promise<Object>} - Full session details including analysis
      */
     getSession: async (sessionId) => {
-        if (!isAuthenticated()) {
-            throw new Error('Please log in to view session details');
-        }
-        
         try {
             const response = await fetch(
                 `${API_URL}/speaking/session/${sessionId}`,
