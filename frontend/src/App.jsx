@@ -1,5 +1,7 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
 import AboutUsPage from './pages/AboutUsPage';
 import AudioPlayerPage from './pages/AudioPlayerPage';
 import BlogPage from './pages/BlogPage';
@@ -32,8 +34,9 @@ import TestSelectPage from './pages/TestSelectPage';
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
+    <AuthProvider>
+      <Router>
+        <Routes>
         {/* Marketing Pages (Wrapped in MainLayout) */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<LandingPage />} />
@@ -54,8 +57,12 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/login/recovery" element={<RecoveryPage />} />
 
-        {/* Learning App (Shared Layout) */}
-        <Route path="/learning" element={<LearningPage />}>
+        {/* Learning App (Protected, Shared Layout) */}
+        <Route path="/learning" element={
+          <ProtectedRoute>
+            <LearningPage />
+          </ProtectedRoute>
+        }>
           <Route index element={<LearningDashboard />} />
           <Route path="listening" element={<ListeningPage />} />
           <Route path="listening/create" element={<CreateListeningPage />} />
@@ -70,7 +77,8 @@ export default function App() {
           <Route path="tests/select" element={<TestSelectPage />} />
           <Route path="tests/:level" element={<TestPage />} />
         </Route>
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }

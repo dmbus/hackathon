@@ -1,9 +1,10 @@
 import { signInWithPopup } from "firebase/auth";
 import { ArrowRight, Lock, Mail, Sparkles, User } from 'lucide-react';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import InputField from '../components/InputField';
 import SocialButton, { GithubIcon, GoogleIcon } from '../components/SocialButton';
+import { useAuth } from '../context/AuthContext';
 import { api, API_BASE_URL } from '../services/api';
 import { auth, githubProvider, googleProvider } from '../services/firebase';
 
@@ -18,6 +19,20 @@ export default function LoginPage() {
         email: '',
         password: ''
     });
+
+    const { user, loading } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Get the intended destination or default to /learning
+    const from = location.state?.from?.pathname || '/learning';
+
+    // Redirect if user is already authenticated
+    useEffect(() => {
+        if (!loading && user) {
+            navigate(from, { replace: true });
+        }
+    }, [user, loading, navigate, from]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -54,6 +69,9 @@ export default function LoginPage() {
             console.log('Social Login Success:', response.data);
             setSuccess('Successfully logged in with ' + providerName + '!');
             localStorage.setItem('token', idToken);
+            
+            // Redirect to intended destination or dashboard
+            navigate(from, { replace: true });
 
         } catch (err) {
             console.error('Social Login Error:', err);
@@ -84,6 +102,9 @@ export default function LoginPage() {
 
             // Store token
             localStorage.setItem('token', response.data.idToken);
+            
+            // Redirect to intended destination or dashboard
+            navigate(from, { replace: true });
 
         } catch (err) {
             console.error('API Error:', err);
