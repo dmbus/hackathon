@@ -10,9 +10,19 @@ import {
 } from 'lucide-react';
 import { testService } from '../services/testService';
 
+// Default CEFR levels to always show
+const DEFAULT_LEVELS = [
+  { level: 'A1', theme: 'indigo', question_count: 0, best_score: null, attempts: 0 },
+  { level: 'A2', theme: 'indigo', question_count: 0, best_score: null, attempts: 0 },
+  { level: 'B1', theme: 'blue', question_count: 0, best_score: null, attempts: 0 },
+  { level: 'B2', theme: 'blue', question_count: 0, best_score: null, attempts: 0 },
+  { level: 'C1', theme: 'rose', question_count: 0, best_score: null, attempts: 0 },
+  { level: 'C2', theme: 'rose', question_count: 0, best_score: null, attempts: 0 },
+];
+
 const TestSelectPage = () => {
   const navigate = useNavigate();
-  const [levels, setLevels] = useState([]);
+  const [levels, setLevels] = useState(DEFAULT_LEVELS);
   const [loading, setLoading] = useState(true);
   const [selectedLevel, setSelectedLevel] = useState(null);
 
@@ -24,9 +34,15 @@ const TestSelectPage = () => {
     setLoading(true);
     try {
       const data = await testService.getLevels();
-      setLevels(data);
+      // Merge API data with default levels
+      const mergedLevels = DEFAULT_LEVELS.map(defaultLevel => {
+        const apiLevel = data.find(l => l.level === defaultLevel.level);
+        return apiLevel || defaultLevel;
+      });
+      setLevels(mergedLevels);
     } catch (error) {
       console.error('Failed to load levels:', error);
+      // Keep default levels on error
     } finally {
       setLoading(false);
     }
@@ -133,7 +149,7 @@ const TestSelectPage = () => {
 
               {/* Question count */}
               <p className={`text-sm ${isSelected ? 'text-indigo-100' : 'text-slate-500'}`}>
-                {level.question_count} questions
+                {level.question_count > 0 ? `${level.question_count} questions` : 'No questions yet'}
               </p>
 
               {/* Best score indicator */}
