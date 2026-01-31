@@ -20,3 +20,4 @@ backend/node_modules/
 .templates_ai/
 
 /words/
+/upload_words/
