@@ -7,7 +7,17 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 # Set the working directory to /app
 WORKDIR /app
 
+# Enable bytecode compilation
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
+
 # Copy the project files into the container
+COPY pyproject.toml uv.lock /app/
+
+# Install the project's dependencies using the lockfile and settings
+RUN uv sync --frozen --no-install-project
+
+# Copy the rest of the project files into the container
 COPY . /app
 
 # Sync the project environment using the lockfile
