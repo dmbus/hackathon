@@ -6,6 +6,7 @@ import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import CareersPage from './pages/CareersPage';
 import ContactPage from './pages/ContactPage';
+import CreatePodcastPage from './pages/CreatePodcastPage';
 import DecksPage from './pages/DecksPage';
 import DownloadsPage from './pages/DownloadsPage';
 import FeaturesPage from './pages/FeaturesPage';

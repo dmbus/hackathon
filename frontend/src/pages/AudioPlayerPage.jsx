@@ -1,46 +1,23 @@
 import {
     AlertCircle,
     BookOpen,
+    Check,
     ChevronLeft,
     Clock,
     Download,
     GraduationCap,
+    Loader2,
     Pause,
     Play,
     RotateCcw,
     Settings2,
     Volume2,
-    VolumeX
+    VolumeX,
+    X
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-// --- Mock Data: Lesson Content ---
-const lessonData = {
-    title: "Chapter 3: At the Café",
-    description: "Ordering coffee and pastries in Paris.",
-    duration: 65, // seconds (approx)
-    // Switched to a standard MP3 for better browser compatibility
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-    transcript: [
-        { id: 1, start: 0, end: 4, speaker: "Narrator", text: "Listen closely to the dialogue between the customer and the barista." },
-        { id: 2, start: 4, end: 7, speaker: "Pierre", text: "Bonjour, madame. Je voudrais un café, s'il vous plaît." },
-        { id: 3, start: 7, end: 11, speaker: "Barista", text: "Bonjour, monsieur. Un café noir ou un café au lait ?" },
-        { id: 4, start: 11, end: 15, speaker: "Pierre", text: "Un grand café au lait, et aussi un croissant." },
-        { id: 5, start: 15, end: 19, speaker: "Barista", text: "Très bien. Ça fera quatre euros cinquante." },
-        { id: 6, start: 19, end: 23, speaker: "Pierre", text: "Voilà. Merci beaucoup, madame. Bonne journée." },
-        { id: 7, start: 23, end: 27, speaker: "Barista", text: "Merci à vous. Au revoir !" },
-        { id: 8, start: 27, end: 35, speaker: "Narrator", text: "Now, repeat after the speakers. Pay attention to the intonation." }
-    ],
-    vocabulary: [
-        { id: 1, word: "Je voudrais", translation: "I would like", phonetic: "/ʒə vu.dʁɛ/", type: "phrase" },
-        { id: 2, word: "Café au lait", translation: "Coffee with milk", phonetic: "/ka.fe o lɛ/", type: "noun" },
-        { id: 3, word: "S'il vous plaît", translation: "Please", phonetic: "/sil vu plɛ/", type: "phrase" },
-        { id: 4, word: "Croissant", translation: "Crescent roll", phonetic: "/kʁwa.sɑ̃/", type: "noun" },
-        { id: 5, word: "Cinquante", translation: "Fifty", phonetic: "/sɛ̃.kɑ̃t/", type: "number" },
-        { id: 6, word: "Bonne journée", translation: "Have a nice day", phonetic: "/bɔn ʒuʁ.ne/", type: "phrase" },
-    ]
-};
+import { useNavigate, useParams } from 'react-router-dom';
+import { getPodcast } from '../services/podcastService';
 
 // --- Helper: Format seconds to MM:SS ---
 const formatTime = (time) => {
@@ -51,7 +28,7 @@ const formatTime = (time) => {
 };
 
 // --- Sub-Component: Transcript Item ---
-const TranscriptSegment = ({ segment, isActive, onClick }) => {
+const TranscriptSegment = ({ segment, index, isActive, onClick }) => {
     const activeRef = useRef(null);
 
     useEffect(() => {
@@ -66,7 +43,7 @@ const TranscriptSegment = ({ segment, isActive, onClick }) => {
     return (
         <div
             ref={activeRef}
-            onClick={() => onClick(segment.start)}
+            onClick={onClick}
             className={`
         p-4 rounded-xl cursor-pointer transition-all duration-300 border mb-3
         ${isActive
@@ -80,7 +57,7 @@ const TranscriptSegment = ({ segment, isActive, onClick }) => {
                     {segment.speaker}
                 </span>
                 <span className="text-xs font-mono text-slate-300">
-                    {formatTime(segment.start)}
+                    #{index + 1}
                 </span>
             </div>
             <p className={`text-lg leading-relaxed ${isActive ? 'text-slate-800 font-medium' : 'text-slate-500'}`}>
@@ -90,41 +67,46 @@ const TranscriptSegment = ({ segment, isActive, onClick }) => {
     );
 };
 
-// --- Sub-Component: Vocabulary Item ---
-const VocabularyItem = ({ item }) => {
-    const playPronunciation = (e) => {
-        e.stopPropagation();
-        if ('speechSynthesis' in window) {
-            // Cancel previous
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(item.word);
-            utterance.lang = 'fr-FR';
-            utterance.rate = 0.8;
-            window.speechSynthesis.speak(utterance);
-        }
-    };
-
+// --- Sub-Component: Quiz Question ---
+const QuizQuestion = ({ question, index, selectedAnswer, onSelectAnswer, showResult }) => {
     return (
-        <div className="group flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl mb-3 hover:border-indigo-200 hover:shadow-md transition-all">
-            <div className="flex flex-col">
-                <div className="flex items-baseline gap-3">
-                    <h4 className="text-xl font-bold text-slate-800">{item.word}</h4>
-                    <span className="text-sm font-mono text-slate-400 opacity-60">{item.phonetic}</span>
-                </div>
-                <p className="text-indigo-600 font-medium mt-1">{item.translation}</p>
+        <div className="p-4 bg-white border border-slate-100 rounded-xl mb-4">
+            <div className="flex items-start gap-3 mb-3">
+                <span className="flex-shrink-0 w-7 h-7 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">
+                    {index + 1}
+                </span>
+                <h4 className="text-slate-800 font-medium flex-1">{question.question}</h4>
             </div>
 
-            <div className="flex items-center gap-4">
-                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider bg-slate-50 px-2 py-1 rounded hidden sm:block">
-                    {item.type}
-                </span>
-                <button
-                    onClick={playPronunciation}
-                    className="p-3 rounded-full text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                    title="Listen to pronunciation"
-                >
-                    <Volume2 size={20} />
-                </button>
+            <div className="space-y-2 ml-10">
+                {question.options.map((option, optIdx) => {
+                    const isSelected = selectedAnswer === option;
+                    const isCorrectOption = option === question.correct_answer;
+
+                    let optionStyle = 'bg-slate-50 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50';
+                    if (showResult) {
+                        if (isCorrectOption) {
+                            optionStyle = 'bg-emerald-50 border-emerald-300 text-emerald-700';
+                        } else if (isSelected && !isCorrectOption) {
+                            optionStyle = 'bg-red-50 border-red-300 text-red-700';
+                        }
+                    } else if (isSelected) {
+                        optionStyle = 'bg-indigo-50 border-indigo-300 text-indigo-700';
+                    }
+
+                    return (
+                        <button
+                            key={optIdx}
+                            onClick={() => !showResult && onSelectAnswer(option)}
+                            disabled={showResult}
+                            className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition-all flex items-center justify-between ${optionStyle}`}
+                        >
+                            <span>{option}</span>
+                            {showResult && isCorrectOption && <Check size={16} className="text-emerald-600" />}
+                            {showResult && isSelected && !isCorrectOption && <X size={16} className="text-red-500" />}
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );
@@ -133,7 +115,14 @@ const VocabularyItem = ({ item }) => {
 // --- Main Component: Audio Player ---
 export default function AudioPlayerPage() {
     const navigate = useNavigate();
-    // State
+    const { id } = useParams();
+
+    // Data state
+    const [podcast, setPodcast] = useState(null);
+    const [isLoadingPodcast, setIsLoadingPodcast] = useState(true);
+    const [loadError, setLoadError] = useState(null);
+
+    // Audio state
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -142,11 +131,36 @@ export default function AudioPlayerPage() {
     const [isMuted, setIsMuted] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState('transcript'); // 'transcript' | 'vocabulary'
+    const [activeTab, setActiveTab] = useState('transcript'); // 'transcript' | 'quiz'
+
+    // Quiz state
+    const [quizAnswers, setQuizAnswers] = useState({});
+    const [showQuizResults, setShowQuizResults] = useState(false);
 
     // Refs
     const audioRef = useRef(null);
     const progressBarRef = useRef(null);
+
+    // Fetch podcast data
+    useEffect(() => {
+        const fetchPodcast = async () => {
+            setIsLoadingPodcast(true);
+            setLoadError(null);
+            try {
+                const data = await getPodcast(id);
+                setPodcast(data);
+            } catch (err) {
+                console.error('Failed to fetch podcast:', err);
+                setLoadError('Failed to load podcast. It may not exist.');
+            } finally {
+                setIsLoadingPodcast(false);
+            }
+        };
+
+        if (id) {
+            fetchPodcast();
+        }
+    }, [id]);
 
     // --- Audio Handlers ---
 
@@ -196,7 +210,6 @@ export default function AudioPlayerPage() {
         const pos = (e.clientX - rect.left) / rect.width;
         const newTime = pos * duration;
 
-        // Check if newTime is finite and valid
         if (Number.isFinite(newTime)) {
             audio.currentTime = newTime;
             setCurrentTime(newTime);
@@ -227,30 +240,82 @@ export default function AudioPlayerPage() {
         }
     };
 
-    const jumpToTime = async (time) => {
-        if (audioRef.current) {
-            audioRef.current.currentTime = time;
+    // --- Quiz Handlers ---
+    const handleSelectAnswer = (questionIndex, answer) => {
+        setQuizAnswers(prev => ({
+            ...prev,
+            [questionIndex]: answer
+        }));
+    };
+
+    const handleSubmitQuiz = () => {
+        setShowQuizResults(true);
+    };
+
+    const handleResetQuiz = () => {
+        setQuizAnswers({});
+        setShowQuizResults(false);
+    };
+
+    // --- Derived State ---
+    const progressPercent = duration ? (currentTime / duration) * 100 : 0;
+
+    const quizScore = useMemo(() => {
+        if (!podcast?.quiz || !showQuizResults) return null;
+        const correct = podcast.quiz.filter(
+            (q, idx) => quizAnswers[idx] === q.correct_answer
+        ).length;
+        return { correct, total: podcast.quiz.length };
+    }, [podcast, quizAnswers, showQuizResults]);
+
+    // Calculate active transcript line
+    const activeTranscriptIndex = useMemo(() => {
+        if (!podcast?.transcript) return -1;
+
+        // Find the segment matching the current time
+        // We use explicit start/end times if available
+        return podcast.transcript.findIndex(seg => {
+            if (seg.start_time === undefined || seg.end_time === undefined) return false;
+            return currentTime >= seg.start_time && currentTime < seg.end_time;
+        });
+    }, [currentTime, podcast]);
+
+    const handleTranscriptClick = (segment) => {
+        if (segment.start_time !== undefined && audioRef.current) {
+            audioRef.current.currentTime = segment.start_time;
             if (!isPlaying) {
-                try {
-                    await audioRef.current.play();
-                    setIsPlaying(true);
-                    setError(null);
-                } catch (err) {
-                    console.error("Jump to time play error:", err);
-                }
+                audioRef.current.play();
+                setIsPlaying(true);
             }
         }
     };
 
-    // --- Derived State ---
-    const activeSegmentId = useMemo(() => {
-        const segment = lessonData.transcript.find(
-            (s) => currentTime >= s.start && currentTime < s.end
+    // Loading state
+    if (isLoadingPodcast) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+            </div>
         );
-        return segment ? segment.id : null;
-    }, [currentTime]);
+    }
 
-    const progressPercent = duration ? (currentTime / duration) * 100 : 0;
+    // Error state
+    if (loadError || !podcast) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4">
+                <AlertCircle className="w-16 h-16 text-red-400 mb-4" />
+                <h2 className="text-xl font-bold text-slate-800 mb-2">Podcast Not Found</h2>
+                <p className="text-slate-500 mb-6">{loadError || 'The podcast you are looking for does not exist.'}</p>
+                <button
+                    onClick={() => navigate('/learning/listening')}
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                >
+                    <ChevronLeft size={18} />
+                    Back to Library
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center py-12 px-4 font-sans text-slate-900">
@@ -258,12 +323,13 @@ export default function AudioPlayerPage() {
             {/* Hidden Audio Element */}
             <audio
                 ref={audioRef}
-                src={lessonData.audioUrl}
+                src={podcast.audio_url}
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
                 onEnded={() => setIsPlaying(false)}
                 onError={handleError}
                 preload="metadata"
+                crossOrigin="anonymous"
             />
 
             {/* --- Top Navigation Bar --- */}
@@ -283,15 +349,21 @@ export default function AudioPlayerPage() {
                         <Volume2 size={24} />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-slate-800 tracking-tight">{lessonData.title}</h2>
-                        <p className="text-slate-500 text-sm font-medium">{lessonData.description}</p>
+                        <h2 className="text-xl font-bold text-slate-800 tracking-tight">{podcast.title}</h2>
+                        <p className="text-slate-500 text-sm font-medium">{podcast.context} • {podcast.cefr_level}</p>
                     </div>
                 </div>
 
                 {/* Test Button */}
-                <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl shadow-md hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all font-bold text-sm">
+                <button
+                    onClick={() => setActiveTab('quiz')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl shadow-md hover:scale-105 active:scale-95 transition-all font-bold text-sm ${activeTab === 'quiz'
+                        ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                        }`}
+                >
                     <GraduationCap size={18} />
-                    Test
+                    Quiz ({podcast.quiz?.length || 0})
                 </button>
             </header>
 
@@ -328,7 +400,7 @@ export default function AudioPlayerPage() {
                         {/* Time Display */}
                         <div className="w-full flex justify-between text-sm font-mono text-slate-400 mb-2">
                             <span>{formatTime(currentTime)}</span>
-                            <span>{formatTime(duration)}</span>
+                            <span>{podcast.duration || formatTime(duration)}</span>
                         </div>
 
                         {/* Progress Bar */}
@@ -413,28 +485,28 @@ export default function AudioPlayerPage() {
                         {/* Tab Switching Buttons */}
                         <div className="mt-auto flex gap-4 w-full">
                             <button
-                                onClick={() => setActiveTab('vocabulary')}
-                                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all border ${activeTab === 'vocabulary'
-                                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-md transform scale-105'
-                                        : 'text-slate-500 bg-slate-50 hover:bg-slate-100 border-slate-100'
-                                    }`}
-                            >
-                                VOCABULARY
-                            </button>
-                            <button
                                 onClick={() => setActiveTab('transcript')}
                                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all border ${activeTab === 'transcript'
-                                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-md transform scale-105'
-                                        : 'text-slate-500 bg-slate-50 hover:bg-slate-100 border-slate-100'
+                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md transform scale-105'
+                                    : 'text-slate-500 bg-slate-50 hover:bg-slate-100 border-slate-100'
                                     }`}
                             >
                                 TRANSCRIPT
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('quiz')}
+                                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all border ${activeTab === 'quiz'
+                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md transform scale-105'
+                                    : 'text-slate-500 bg-slate-50 hover:bg-slate-100 border-slate-100'
+                                    }`}
+                            >
+                                QUIZ
                             </button>
                         </div>
                     </div>
                 </section>
 
-                {/* --- Right Col: Content Area (Transcript or Vocab) --- */}
+                {/* --- Right Col: Content Area (Transcript or Quiz) --- */}
                 <section className="lg:col-span-2 bg-white rounded-2xl shadow-xl border border-slate-200 flex flex-col overflow-hidden h-full">
                     <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-white z-10 min-h-[60px]">
                         <h3 className="font-bold text-slate-700 flex items-center gap-2">
@@ -446,38 +518,92 @@ export default function AudioPlayerPage() {
                             ) : (
                                 <>
                                     <BookOpen size={16} className="text-indigo-500" />
-                                    Vocabulary List
+                                    Quiz Questions
                                 </>
                             )}
                         </h3>
-                        <button className="text-slate-400 hover:text-slate-600" title="Download PDF">
-                            <Download size={18} />
-                        </button>
+                        {activeTab === 'transcript' && (
+                            <button className="text-slate-400 hover:text-slate-600" title="Download Transcript">
+                                <Download size={18} />
+                            </button>
+                        )}
+                        {activeTab === 'quiz' && showQuizResults && quizScore && (
+                            <div className="flex items-center gap-2">
+                                <span className={`text-sm font-bold ${quizScore.correct === quizScore.total ? 'text-emerald-600' : 'text-indigo-600'}`}>
+                                    {quizScore.correct}/{quizScore.total} correct
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-4 scroll-smooth">
                         {activeTab === 'transcript' ? (
                             <>
-                                {lessonData.transcript.map((segment) => (
+                                {podcast.transcript?.map((segment, index) => (
                                     <TranscriptSegment
-                                        key={segment.id}
+                                        key={index}
                                         segment={segment}
-                                        isActive={activeSegmentId === segment.id}
-                                        onClick={jumpToTime}
+                                        index={index}
+                                        isActive={index === activeTranscriptIndex}
+                                        onClick={() => handleTranscriptClick(segment)}
                                     />
                                 ))}
                                 <div className="h-20 flex items-center justify-center text-slate-300 text-sm italic">
-                                    End of Lesson
+                                    End of Transcript
                                 </div>
                             </>
                         ) : (
                             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                {lessonData.vocabulary.map((item) => (
-                                    <VocabularyItem key={item.id} item={item} />
+                                {podcast.quiz?.map((question, index) => (
+                                    <QuizQuestion
+                                        key={index}
+                                        question={question}
+                                        index={index}
+                                        selectedAnswer={quizAnswers[index]}
+                                        onSelectAnswer={(answer) => handleSelectAnswer(index, answer)}
+                                        showResult={showQuizResults}
+                                    />
                                 ))}
-                                <div className="mt-8 text-center p-6 bg-slate-50 rounded-xl border border-slate-100 border-dashed">
-                                    <p className="text-slate-400 text-sm">Review these words to master the lesson!</p>
+
+                                {/* Quiz Actions */}
+                                <div className="mt-6 flex justify-center gap-4">
+                                    {!showQuizResults ? (
+                                        <button
+                                            onClick={handleSubmitQuiz}
+                                            disabled={Object.keys(quizAnswers).length < (podcast.quiz?.length || 0)}
+                                            className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Submit Answers
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={handleResetQuiz}
+                                            className="px-6 py-2.5 bg-slate-100 text-slate-700 rounded-lg font-bold hover:bg-slate-200 transition-colors"
+                                        >
+                                            Try Again
+                                        </button>
+                                    )}
                                 </div>
+
+                                {/* Results Summary */}
+                                {showQuizResults && quizScore && (
+                                    <div className={`mt-6 p-6 rounded-xl text-center ${quizScore.correct === quizScore.total
+                                        ? 'bg-emerald-50 border border-emerald-200'
+                                        : 'bg-indigo-50 border border-indigo-200'
+                                        }`}>
+                                        <h4 className={`text-lg font-bold mb-2 ${quizScore.correct === quizScore.total ? 'text-emerald-700' : 'text-indigo-700'
+                                            }`}>
+                                            {quizScore.correct === quizScore.total
+                                                ? 'Perfekt! Ausgezeichnet!'
+                                                : `${quizScore.correct} von ${quizScore.total} richtig`}
+                                        </h4>
+                                        <p className="text-sm text-slate-600">
+                                            {quizScore.correct === quizScore.total
+                                                ? 'You answered all questions correctly!'
+                                                : 'Review the highlighted answers and try again.'}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -485,11 +611,28 @@ export default function AudioPlayerPage() {
 
             </main>
 
+            {/* Words Used Section */}
+            {podcast.words && podcast.words.length > 0 && (
+                <div className="w-full max-w-3xl mt-8">
+                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Words Practiced</h3>
+                    <div className="flex flex-wrap gap-2">
+                        {podcast.words.map((word, idx) => (
+                            <span
+                                key={idx}
+                                className="px-3 py-1.5 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-700"
+                            >
+                                {word}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div className="mt-12 text-center text-slate-400 text-sm max-w-md">
                 {activeTab === 'transcript' ? (
-                    <p>Pro Tip: Click any sentence in the transcript to <span className="text-indigo-500 font-semibold">jump to that timestamp</span>.</p>
+                    <p>Pro Tip: Listen to the audio while following the <span className="text-indigo-500 font-semibold">transcript</span> to improve comprehension.</p>
                 ) : (
-                    <p>Pro Tip: Click the <span className="text-indigo-500 font-semibold">speaker icon</span> to hear the pronunciation of each word.</p>
+                    <p>Pro Tip: Answer all questions before submitting to see your <span className="text-indigo-500 font-semibold">complete score</span>.</p>
                 )}
             </div>
         </div>
