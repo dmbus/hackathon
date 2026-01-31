@@ -16,6 +16,8 @@ import LoginPage from './pages/LoginPage';
 import PricingPage from './pages/PricingPage';
 import PrivacyPage from './pages/PrivacyPage';
 import RecoveryPage from './pages/RecoveryPage';
+import SpeakingListPage from './pages/SpeakingListPage';
+import SpeakingPage from './pages/SpeakingPage';
 import TermsPage from './pages/TermsPage';
 
 export default function App() {
@@ -44,6 +46,8 @@ export default function App() {
         <Route path="/learning" element={<LearningPage />} />
         <Route path="/learning/listening" element={<ListeningPage />} />
         <Route path="/learning/listening/:id" element={<AudioPlayerPage />} />
+        <Route path="/learning/speaking" element={<SpeakingListPage />} />
+        <Route path="/learning/speaking/practice" element={<SpeakingPage />} />
       </Routes>
     </Router>
   );

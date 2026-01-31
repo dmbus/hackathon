@@ -32,8 +32,8 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
     </button>
 );
 
-const Card = ({ children, className = "" }) => (
-    <div className={`bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden ${className}`}>
+const Card = ({ children, className = "", ...props }) => (
+    <div className={`bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden ${className}`} {...props}>
         {children}
     </div>
 );
@@ -94,7 +94,7 @@ const LearningPage = () => {
                             {/* Practice Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Speaking Practice */}
-                                <Card className="p-6 hover:border-indigo-300 transition-colors group cursor-pointer">
+                                <Card onClick={() => navigate('/learning/speaking')} className="p-6 hover:border-indigo-300 transition-colors group cursor-pointer">
                                     <div className="p-3 bg-rose-50 rounded-xl w-fit mb-4 group-hover:bg-rose-100 transition-colors">
                                         <Mic2 className="text-rose-500" size={24} />
                                     </div>
@@ -269,7 +269,7 @@ const LearningPage = () => {
                 <nav className="flex-1 space-y-2">
                     <SidebarItem icon={LayoutDashboard} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
                     <SidebarItem icon={BookOpen} label="Word Decks" active={activeTab === 'decks'} onClick={() => setActiveTab('decks')} />
-                    <SidebarItem icon={Mic2} label="Speaking" active={activeTab === 'speaking'} onClick={() => setActiveTab('speaking')} />
+                    <SidebarItem icon={Mic2} label="Speaking" active={activeTab === 'speaking'} onClick={() => navigate('/learning/speaking')} />
                     <SidebarItem icon={Headphones} label="Listening" active={activeTab === 'listening'} onClick={() => navigate('/learning/listening')} />
                     <SidebarItem icon={Trophy} label="Leaderboard" active={activeTab === 'leaderboard'} onClick={() => setActiveTab('leaderboard')} />
                 </nav>
