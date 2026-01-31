@@ -375,31 +375,28 @@ export default function SpeakingPage() {
     );
 
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-6 font-sans text-slate-600">
-            {/* Main Card Container */}
-            <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden relative transition-all duration-500">
+        <div className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden relative transition-all duration-500">
 
-                {/* Progress Bar (Top) - Only shown in recording/idle */}
-                {status !== 'feedback' && (
-                    <div className="h-1 bg-slate-100 w-full">
-                        <div
-                            className="h-full bg-indigo-600 transition-all duration-300"
-                            style={{
-                                width: status === 'idle' ? '25%' : status === 'recording' ? '50%' : '75%'
-                            }}
-                        />
-                    </div>
-                )}
+            {/* Progress Bar (Top) - Only shown in recording/idle */}
+            {status !== 'feedback' && (
+                <div className="h-1 bg-slate-100 w-full">
+                    <div
+                        className="h-full bg-indigo-600 transition-all duration-300"
+                        style={{
+                            width: status === 'idle' ? '25%' : status === 'recording' ? '50%' : '75%'
+                        }}
+                    />
+                </div>
+            )}
 
-                <div className="p-6 md:p-10">
-                    {status !== 'feedback' && renderHeader()}
+            <div className="p-6 md:p-10">
+                {status !== 'feedback' && renderHeader()}
 
-                    <div className="min-h-[400px]">
-                        {status === 'idle' && renderIdle()}
-                        {status === 'recording' && renderRecording()}
-                        {status === 'processing' && renderProcessing()}
-                        {status === 'feedback' && renderFeedback()}
-                    </div>
+                <div className="min-h-[400px]">
+                    {status === 'idle' && renderIdle()}
+                    {status === 'recording' && renderRecording()}
+                    {status === 'processing' && renderProcessing()}
+                    {status === 'feedback' && renderFeedback()}
                 </div>
             </div>
         </div>

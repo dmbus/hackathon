@@ -142,7 +142,7 @@ export default function SpeakingListPage() {
     const totalTime = filteredData.length * 45; // Approximated for demo
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-600 font-sans p-4 md:p-8">
+        <div className="font-sans text-slate-600">
 
             {/* Header Section */}
             <div className="max-w-6xl mx-auto mb-8">

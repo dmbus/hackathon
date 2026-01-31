@@ -6,10 +6,13 @@ import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import CareersPage from './pages/CareersPage';
 import ContactPage from './pages/ContactPage';
+import DecksPage from './pages/DecksPage';
 import DownloadsPage from './pages/DownloadsPage';
 import FeaturesPage from './pages/FeaturesPage';
+import FlashcardsPage from './pages/FlashcardsPage';
 import ForSchoolsPage from './pages/ForSchoolsPage';
 import LandingPage from './pages/LandingPage';
+import LearningDashboard from './pages/LearningDashboard';
 import LearningPage from './pages/LearningPage';
 import ListeningPage from './pages/ListeningPage';
 import LoginPage from './pages/LoginPage';
@@ -19,6 +22,8 @@ import RecoveryPage from './pages/RecoveryPage';
 import SpeakingListPage from './pages/SpeakingListPage';
 import SpeakingPage from './pages/SpeakingPage';
 import TermsPage from './pages/TermsPage';
+import WordDeckDetail from './pages/WordDeckDetail';
+import WordDecks from './pages/WordDecks';
 
 export default function App() {
   return (
@@ -43,11 +48,19 @@ export default function App() {
         {/* Auth Pages (Standalone) */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/login/recovery" element={<RecoveryPage />} />
-        <Route path="/learning" element={<LearningPage />} />
-        <Route path="/learning/listening" element={<ListeningPage />} />
-        <Route path="/learning/listening/:id" element={<AudioPlayerPage />} />
-        <Route path="/learning/speaking" element={<SpeakingListPage />} />
-        <Route path="/learning/speaking/practice" element={<SpeakingPage />} />
+
+        {/* Learning App (Shared Layout) */}
+        <Route path="/learning" element={<LearningPage />}>
+          <Route index element={<LearningDashboard />} />
+          <Route path="listening" element={<ListeningPage />} />
+          <Route path="listening/:id" element={<AudioPlayerPage />} />
+          <Route path="speaking" element={<SpeakingListPage />} />
+          <Route path="speaking/practice" element={<SpeakingPage />} />
+          <Route path="words" element={<WordDecks />} />
+          <Route path="words/:id" element={<WordDeckDetail />} />
+          <Route path="words/:id/flashcards" element={<FlashcardsPage />} />
+          <Route path="decks" element={<DecksPage />} />
+        </Route>
       </Routes>
     </Router>
   );
