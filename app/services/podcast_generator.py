@@ -331,22 +331,8 @@ class PodcastGeneratorService:
         with tempfile.TemporaryDirectory() as tmpdir:
             local_audio_path = Path(tmpdir) / audio_filename
 
-            # Changed: generate_audio is now async-compatible wrapper or just synchronous
-            # But wait, generate_audio above is SYNC (no async def). 
-            # We call it synchronously here.
-            # Using try/except block inside generate_audio to raise exception on failure.
-            timings = await self.run_in_executor(self.generate_audio, script, voice_ids, local_audio_path)
-            
-            # Since I haven't implemented run_in_executor, I'll just call it directly 
-            # but usually this blocks the event loop.
-            # However, for this task, I will modify the call signature to match the new return type.
-            # Wait, `generate_podcast` is `async`. Calling sync method blocks.
-            # Ideally use: loop.run_in_executor(None, ...)
-            # For simplicity in this edit, I will call it directly since it was already sync.
-            
-            # Actually, I'll keep it sync call for now as per previous code structure.
-            # Previous code: audio_success = self.generate_audio(...)
-            timings = self.generate_audio(script, voice_ids, local_audio_path)
+            # Generate audio (async method)
+            timings = await self.generate_audio(script, voice_ids, local_audio_path)
 
             # Get duration
             duration = self.get_audio_duration(local_audio_path)
