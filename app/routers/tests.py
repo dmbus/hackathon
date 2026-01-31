@@ -60,10 +60,18 @@ async def get_test_levels(
 ):
     """Get available CEFR levels with test question counts and user's best scores."""
     
-    # Aggregate words by cerf_level that have tests
+    # Try to find documents with either 'tests' or 'test' field
+    # First check which field name is used
+    count_tests = await db["words"].count_documents({"tests": {"$exists": True, "$type": "array", "$ne": []}})
+    count_test = await db["words"].count_documents({"test": {"$exists": True, "$type": "array", "$ne": []}})
+    
+    # Use the field that has data
+    test_field = "tests" if count_tests > 0 else "test"
+    
+    # Aggregate words by cerf_level that have test questions
     pipeline = [
-        {"$match": {"tests": {"$exists": True, "$ne": []}}},
-        {"$unwind": "$tests"},
+        {"$match": {test_field: {"$exists": True, "$type": "array", "$ne": []}}},
+        {"$unwind": f"${test_field}"},
         {
             "$group": {
                 "_id": "$cerf_level",
@@ -124,21 +132,33 @@ async def start_test(
 ):
     """Start a new test session for a specific CEFR level with 20 random questions."""
     
+    # Check which field name is used for tests
+    count_tests = await db["words"].count_documents({
+        "cerf_level": level, 
+        "tests": {"$exists": True, "$type": "array", "$ne": []}
+    })
+    count_test = await db["words"].count_documents({
+        "cerf_level": level, 
+        "test": {"$exists": True, "$type": "array", "$ne": []}
+    })
+    
+    test_field = "tests" if count_tests > 0 else "test"
+    
     # Fetch random questions from words at this level
     pipeline = [
-        {"$match": {"cerf_level": level, "tests": {"$exists": True, "$ne": []}}},
-        {"$unwind": "$tests"},
+        {"$match": {"cerf_level": level, test_field: {"$exists": True, "$type": "array", "$ne": []}}},
+        {"$unwind": f"${test_field}"},
         {"$sample": {"size": QUESTIONS_PER_TEST}},
         {
             "$project": {
                 "word_id": {"$toString": "$_id"},
                 "word": "$word",
-                "question_type": "$tests.question_type",
-                "question": "$tests.question",
-                "options": "$tests.options",
-                "correct_answer": "$tests.correct_answer",
-                "explanation": "$tests.explanation",
-                "difficulty": "$tests.difficulty"
+                "question_type": f"${test_field}.question_type",
+                "question": f"${test_field}.question",
+                "options": f"${test_field}.options",
+                "correct_answer": f"${test_field}.correct_answer",
+                "explanation": f"${test_field}.explanation",
+                "difficulty": f"${test_field}.difficulty"
             }
         }
     ]
