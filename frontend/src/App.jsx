@@ -28,6 +28,7 @@ import WordDeckDetail from './pages/WordDeckDetail';
 import WordDecks from './pages/WordDecks';
 import TestListPage from './pages/TestListPage';
 import TestPage from './pages/TestPage';
+import TestSelectPage from './pages/TestSelectPage';
 
 export default function App() {
   return (
@@ -66,6 +67,7 @@ export default function App() {
           <Route path="words/:id/flashcards" element={<FlashcardsPage />} />
           <Route path="decks" element={<DecksPage />} />
           <Route path="tests" element={<TestListPage />} />
+          <Route path="tests/select" element={<TestSelectPage />} />
           <Route path="tests/:level" element={<TestPage />} />
         </Route>
       </Routes>

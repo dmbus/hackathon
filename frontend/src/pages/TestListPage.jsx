@@ -8,7 +8,8 @@ import {
   Search,
   Check,
   BarChart3,
-  Loader2
+  Loader2,
+  PlusCircle
 } from 'lucide-react';
 import { testService } from '../services/testService';
 
@@ -75,9 +76,18 @@ const TestListPage = () => {
   return (
     <div className="w-full max-w-4xl mx-auto animate-in fade-in duration-500">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-800">Vocabulary Tests</h1>
-        <p className="text-slate-500 mt-1">Test your German vocabulary by CEFR level</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Vocabulary Tests</h1>
+          <p className="text-slate-500 mt-1">Test your German vocabulary by CEFR level</p>
+        </div>
+        <button
+          onClick={() => navigate('/learning/tests/select')}
+          className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 active:scale-95"
+        >
+          <PlusCircle size={20} />
+          Take a Test
+        </button>
       </div>
 
       {/* Dashboard Stats */}
