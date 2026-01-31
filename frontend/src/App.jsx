@@ -6,6 +6,7 @@ import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import CareersPage from './pages/CareersPage';
 import ContactPage from './pages/ContactPage';
+import CreatePodcastPage from './pages/CreatePodcastPage';
 import DecksPage from './pages/DecksPage';
 import DownloadsPage from './pages/DownloadsPage';
 import FeaturesPage from './pages/FeaturesPage';
@@ -53,6 +54,7 @@ export default function App() {
         <Route path="/learning" element={<LearningPage />}>
           <Route index element={<LearningDashboard />} />
           <Route path="listening" element={<ListeningPage />} />
+          <Route path="listening/create" element={<CreatePodcastPage />} />
           <Route path="listening/:id" element={<AudioPlayerPage />} />
           <Route path="speaking" element={<SpeakingListPage />} />
           <Route path="speaking/practice" element={<SpeakingPage />} />
