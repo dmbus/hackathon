@@ -1,4 +1,0 @@
-Available Databases: ['hackathon', 'admin', 'local']
-Database: 'hackathon' -> Collection: 'words' -> Count: 1428
-Database: 'admin' -> No 'words' collection found.
-Database: 'local' -> No 'words' collection found.
