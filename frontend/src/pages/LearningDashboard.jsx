@@ -94,7 +94,6 @@ const LearningDashboard = () => {
 
                     {/* Audio Lesson Player */}
                     <section>
-                        <SectionHeader overline="Listening Skills" title="Daily Audio Digest" />
                         <Card className="p-0">
                             <div className="p-6 flex items-center gap-4 border-b border-slate-100">
                                 <button
@@ -123,18 +122,21 @@ const LearningDashboard = () => {
                 {/* Sidebar Stats Column */}
                 <div className="space-y-8">
                     {/* Subscription Status */}
-                    <Card className="p-6 bg-slate-900 text-white relative overflow-hidden">
+                    <Card className="p-8 bg-slate-900 text-white relative overflow-hidden min-h-[400px] flex flex-col">
                         <div className="absolute -right-8 -top-8 w-32 h-32 bg-indigo-600 rounded-full blur-3xl opacity-30"></div>
-                        <SectionHeader overline="Membership" title="" />
-                        <h3 className="text-xl font-extrabold mb-2">Sprache.app Plus</h3>
-                        <p className="text-slate-400 text-sm mb-6 font-medium">Unlimited practice, offline mode, and advanced AI tutor features active.</p>
-                        <div className="flex items-center justify-between text-xs font-bold text-indigo-300 mb-2">
-                            <span>Next billing date</span>
-                            <span>Oct 12, 2024</span>
+                        <div className="relative z-10 flex-1 flex flex-col">
+                            <SectionHeader overline="Membership" title="" />
+                            <h3 className="text-2xl font-extrabold mb-3">Sprache.app Plus</h3>
+                            <p className="text-slate-400 text-sm mb-8 font-medium leading-relaxed">Unlimited practice, offline mode, and advanced AI tutor features active.</p>
+                            <div className="flex-1"></div>
+                            <div className="flex items-center justify-between text-xs font-bold text-indigo-300 mb-6">
+                                <span>Next billing date</span>
+                                <span>Oct 12, 2024</span>
+                            </div>
+                            <button className="w-full py-3 bg-white text-slate-900 rounded-full font-bold shadow-lg hover:bg-slate-100 active:scale-95 transition-all text-sm">
+                                Manage Subscription
+                            </button>
                         </div>
-                        <button className="w-full py-3 bg-white text-slate-900 rounded-full font-bold shadow-lg hover:bg-slate-100 active:scale-95 transition-all text-sm">
-                            Manage Subscription
-                        </button>
                     </Card>
                 </div>
             </div>
