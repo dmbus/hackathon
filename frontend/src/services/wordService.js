@@ -9,8 +9,8 @@ export const wordService = {
             return await response.json();
         } catch (error) {
             console.error("Error fetching decks:", error);
-            // Return empty array to avoid crashing UI
-            return [];
+            // Return null to indicate error
+            return null;
         }
     },
 

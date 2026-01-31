@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 import logging
 import time
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, words, podcasts
+from app.routers import auth, words, podcasts, audio
 from app.db.mongodb import close_mongo_connection
 from app.core.config import settings
 
@@ -43,8 +43,8 @@ async def log_requests(request: Request, call_next):
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -52,6 +52,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(words.router, prefix="/words", tags=["words"])
 app.include_router(podcasts.router, prefix="/podcasts", tags=["podcasts"])
+app.include_router(audio.router, prefix="/audio", tags=["audio"])
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

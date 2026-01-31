@@ -59,6 +59,7 @@ const WordDecks = () => {
     const navigate = useNavigate();
     const [decks, setDecks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [selectedLevel, setSelectedLevel] = useState(null);
     const [selectedTopic, setSelectedTopic] = useState(null);
 
@@ -66,7 +67,13 @@ const WordDecks = () => {
         const fetchDecks = async () => {
             try {
                 const data = await wordService.getDecks();
-                setDecks(data);
+                if (data === null) {
+                    setError(true);
+                    setDecks([]);
+                } else {
+                    setDecks(data);
+                    setError(false);
+                }
             } catch (error) {
                 console.error("Failed to fetch decks", error);
             } finally {
@@ -141,6 +148,17 @@ const WordDecks = () => {
                 <div className="text-center py-20">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
                     <p className="text-slate-500">Loading your decks...</p>
+                </div>
+            ) : error ? (
+                <div className="text-center py-20 bg-rose-50 rounded-2xl border border-rose-200">
+                    <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-500">
+                        <X size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold text-rose-700 mb-2">Unable to load decks</h3>
+                    <p className="text-rose-600 mb-6 max-w-md mx-auto">We couldn't connect to the server to fetch your word decks. Please ensure the backend is running.</p>
+                    <button onClick={() => window.location.reload()} className="px-6 py-2 bg-white border border-rose-300 text-rose-700 font-semibold rounded-full hover:bg-rose-100 transition-colors">
+                        Retry
+                    </button>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

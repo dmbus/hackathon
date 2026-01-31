@@ -52,6 +52,15 @@ async def get_word_decks(db: AsyncIOMotorDatabase = Depends(get_database)):
     
     return decks
 
+def get_audio_filename(url: str) -> str:
+    """Extract filename from audio URL and return proxied path."""
+    if not url:
+        return ""
+    # Extract filename from URL like https://storage.../hackathon/audio/word_m.mp3
+    filename = url.split("/")[-1] if "/" in url else url
+    return f"/audio/{filename}"
+
+
 @router.get("/{level}")
 async def get_words_by_level(level: str, db: AsyncIOMotorDatabase = Depends(get_database)):
     cursor = db["words"].find({"cerf_level": level})
@@ -67,12 +76,17 @@ async def get_words_by_level(level: str, db: AsyncIOMotorDatabase = Depends(get_
         if not translation and translations:
             translation = translations[0].get("content", "")
 
+        # Get audio URLs and convert to proxy paths
+        audio = doc.get("audio", {})
+
         words.append({
             "id": str(doc["_id"]),
             "original": doc.get("word", ""),
             "translation": translation,
-            "pronunciation": doc.get("ipa_transcription", "").replace("/", ""), 
-            "level": 0 
+            "pronunciation": doc.get("ipa_transcription", "").replace("/", ""),
+            "audioMale": get_audio_filename(audio.get("male", "")),
+            "audioFemale": get_audio_filename(audio.get("female", "")),
+            "level": 0
         })
     return words
 
