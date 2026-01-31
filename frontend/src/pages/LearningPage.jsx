@@ -11,7 +11,7 @@ import {
     Mic2,
     Play,
     Settings,
-    User
+    User as UserIcon
 } from 'lucide-react';
 import { useRef, useState, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -34,6 +34,7 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
 
 const UserDropdown = ({ user, onLogout, navigate }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [imageError, setImageError] = useState(false);
     const dropdownRef = useRef(null);
 
     // Close dropdown when clicking outside
@@ -47,15 +48,21 @@ const UserDropdown = ({ user, onLogout, navigate }) => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    // Reset image error when user changes
+    useEffect(() => {
+        setImageError(false);
+    }, [user?.photoURL]);
+
     const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
-    const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
     const menuItems = [
-        { icon: User, label: 'Profile', onClick: () => navigate('/learning/profile') },
+        { icon: UserIcon, label: 'Profile', onClick: () => navigate('/learning/profile') },
         { icon: Bell, label: 'Notifications', onClick: () => navigate('/learning/notifications') },
         { icon: Settings, label: 'Settings', onClick: () => navigate('/learning/settings') },
         { icon: LogOut, label: 'Sign Out', onClick: onLogout, danger: true },
     ];
+
+    const showImage = user?.photoURL && !imageError;
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -63,15 +70,17 @@ const UserDropdown = ({ user, onLogout, navigate }) => {
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors"
             >
-                {user?.photoURL ? (
+                {showImage ? (
                     <img
                         src={user.photoURL}
-                        alt={displayName}
+                        alt=""
                         className="w-9 h-9 rounded-full object-cover border-2 border-indigo-100"
+                        onError={() => setImageError(true)}
+                        referrerPolicy="no-referrer"
                     />
                 ) : (
-                    <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm">
-                        {initials}
+                    <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                        <UserIcon size={20} />
                     </div>
                 )}
                 <span className="font-semibold text-slate-700 hidden sm:block">{displayName}</span>
