@@ -1,6 +1,7 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
 import AboutUsPage from './pages/AboutUsPage';
+import AudioPlayerPage from './pages/AudioPlayerPage';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import CareersPage from './pages/CareersPage';
@@ -9,6 +10,8 @@ import DownloadsPage from './pages/DownloadsPage';
 import FeaturesPage from './pages/FeaturesPage';
 import ForSchoolsPage from './pages/ForSchoolsPage';
 import LandingPage from './pages/LandingPage';
+import LearningPage from './pages/LearningPage';
+import ListeningPage from './pages/ListeningPage';
 import LoginPage from './pages/LoginPage';
 import PricingPage from './pages/PricingPage';
 import PrivacyPage from './pages/PrivacyPage';
@@ -38,6 +41,9 @@ export default function App() {
         {/* Auth Pages (Standalone) */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/login/recovery" element={<RecoveryPage />} />
+        <Route path="/learning" element={<LearningPage />} />
+        <Route path="/learning/listening" element={<ListeningPage />} />
+        <Route path="/learning/listening/:id" element={<AudioPlayerPage />} />
       </Routes>
     </Router>
   );
