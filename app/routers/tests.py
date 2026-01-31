@@ -21,6 +21,38 @@ router = APIRouter()
 QUESTIONS_PER_TEST = 20
 
 
+@router.get("/debug")
+async def debug_words_structure(
+    db: AsyncIOMotorDatabase = Depends(get_database),
+):
+    """Debug endpoint to check words collection structure."""
+    # Get a sample word document
+    sample = await db["words"].find_one()
+    if not sample:
+        return {"error": "No words found in collection"}
+    
+    # Convert ObjectId to string for JSON serialization
+    sample["_id"] = str(sample["_id"])
+    
+    # Get field names
+    fields = list(sample.keys())
+    
+    # Check for test-related fields
+    test_fields = [f for f in fields if "test" in f.lower()]
+    
+    # Count words with tests
+    count_with_tests = await db["words"].count_documents({"tests": {"$exists": True}})
+    count_with_test = await db["words"].count_documents({"test": {"$exists": True}})
+    
+    return {
+        "sample_fields": fields,
+        "test_related_fields": test_fields,
+        "count_with_tests_field": count_with_tests,
+        "count_with_test_field": count_with_test,
+        "sample_document": sample
+    }
+
+
 @router.get("/levels", response_model=List[TestLevelInfo])
 async def get_test_levels(
     db: AsyncIOMotorDatabase = Depends(get_database),
